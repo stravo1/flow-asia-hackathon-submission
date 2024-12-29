@@ -28,10 +28,10 @@ contract FlowHackathonNFT is
         uint256 indexed _tokenId,
         string _uri
     );
-    event NftCreated(uint256 _tokenId, string _uri);
-    event NftBought(address _seller, address _buyer, uint256 _price);
-    event NftListed(uint256 _tokenId, uint256 _price);
-    event NftDelisted(uint256 _tokenId);
+    event NftCreated(uint256 indexed _tokenId, string _uri);
+    event NftBought(address indexed _seller, address indexed _buyer, uint256 indexed _tokenId, uint256 _price);
+    event NftListed(uint256 indexed _tokenId, uint256 _price);
+    event NftDelisted(uint256 indexed _tokenId);
 
     constructor(
         address initialOwner
@@ -126,7 +126,7 @@ contract FlowHackathonNFT is
         tokenIdToPrice[_tokenId] = 0; // not for sale anymore
         payable(seller).transfer(msg.value); // send the ETH to the seller
 
-        emit NftBought(seller, msg.sender, msg.value);
+        emit NftBought(seller, msg.sender, _tokenId, msg.value);
         emit NftDelisted(_tokenId);
     }
 }
