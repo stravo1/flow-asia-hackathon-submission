@@ -569,17 +569,16 @@ const userStateHandler = async (message, bot, userState) => {
                             pushFiles(
                                 userState[message.chat.id].maxSupply
                             ).then(async () => {
-                                await bot.deleteMessage(
-                                    message.chat.id,
-                                    lastMessage.message_id
-                                );
-                                await bot.sendMessage(
-                                    message.chat.id,
-                                    "NFT pushed to GitHub successfully"
-                                );
                                 await bot.sendPhoto(message.chat.id, image, {
                                     caption: `Name: ${jsonSchema.name}\nDescription: ${jsonSchema.description}`,
                                 });
+                            })
+                            .catch(async (error) => {
+                                console.error("Error pushing files:", error);
+                                await bot.sendMessage(
+                                    message.chat.id,
+                                    "Error pushing files"
+                                );
                             });
                         })
                         .catch(async (error) => {
