@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const { default: Web3 } = require('web3');
 const FlowHackathonNFT = require("../../artifacts/contracts/FlowHackathonNFT.sol/FlowHackathonNFT.json");
-const { pushFiles } = require('./utils/githubActions');
+const { pushFiles, localDir, cloneRepo } = require('./utils/githubActions');
 const bot = new TelegramBot(process.env.BOT_AUTH_TOKEN, { polling: true });
 
 const userState = {};
@@ -21,6 +21,12 @@ async function connectToDatabase() {
     } catch (error) {
         console.error('Error connecting to database:', error);
     }
+}
+
+// create repo if not exists
+if(!fs.existsSync(localDir)) {
+    fs.mkdirSync(localDir);
+    cloneRepo(localDir);
 }
 
 connectToDatabase();

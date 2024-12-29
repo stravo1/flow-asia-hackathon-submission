@@ -12,25 +12,34 @@ const localDir = path.resolve(process.cwd(), repo);
 const username = 'stravo1'; // Replace with your GitHub username
 const token = process.env.GITHUB_API_TOKEN; // Replace with your PAT
 
-const git = simpleGit(
-    localDir,
-    {
-        baseDir: localDir,
-        binary: 'git',
-        maxConcurrentProcesses: 6,
+async function cloneRepo() {
+    const git = simpleGit(
+        localDir,
+        {
+            baseDir: localDir,
+            binary: 'git',
+            maxConcurrentProcesses: 6,
+        }
+    );
+    if (!fs.existsSync(`${localDir}/.git`)) {
+        console.log('Cloning repository...');
+        console.log(`https://${token}@github.com/${username}/${repo}.git`);
+        await git.clone(`https://${token}@github.com/${username}/${repo}.git`, localDir);
     }
-);
+    console.log('Repo cloned');
+}
 
 async function pushFiles(tokenId) {
-    try {
-        // Clone repo if local directory doesn't exist
-        if (!fs.existsSync(`${localDir}/.git`)) {
-            console.log('Cloning repository...');
-            console.log(`https://${token}@github.com/${username}/${repo}.git`);
-            await git.clone(`https://${token}@github.com/${username}/${repo}.git`, localDir);
+    const git = simpleGit(
+        localDir,
+        {
+            baseDir: localDir,
+            binary: 'git',
+            maxConcurrentProcesses: 6,
         }
+    );
+    try {
 
-        console.log('Configuring Git locally...');
         await git.addConfig('user.name', 'flow-asia-hackathon-nft-bot', false, 'local');
         await git.addConfig('user.email', 'stravo1@gmail.com', false, 'local');
 
@@ -53,12 +62,8 @@ async function pushFiles(tokenId) {
     }
 }
 
-const logCurrentDir = async () => {
-    console.log(process.cwd());
-    console.log(localDir);
-}
-
 module.exports = {
     pushFiles,
+    cloneRepo,
     localDir,
 }
