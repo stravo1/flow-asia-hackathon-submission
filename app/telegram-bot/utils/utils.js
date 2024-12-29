@@ -1,7 +1,67 @@
 const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
+const { default: axios } = require('axios');
 const crypto = require('crypto');
 const { Web3 } = require('web3');
+const { createCanvas } = require('canvas');
+
+function generateComplementaryPastelColors(seed) {
+    // Seeded random function
+    function seededRandom(seed) {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
+    // Generate a random hue and lightness for the first color
+    const baseHue = Math.floor(seededRandom(seed) * 360);
+    const lightness1 = Math.floor(seededRandom(seed + 1) * 20) + 80; // Light pastel (80% to 100% lightness)
+    const saturation1 = Math.floor(seededRandom(seed + 2) * 20) + 60; // 60% to 80% saturation
+
+    // Generate complementary color
+    const complementaryHue = (baseHue + 180) % 360;
+    const lightness2 = Math.floor(seededRandom(seed + 3) * 20) + 40; // Darker pastel (40% to 60% lightness)
+    const saturation2 = Math.floor(seededRandom(seed + 4) * 20) + 40; // 40% to 60% saturation
+
+    // Convert HSL to CSS color strings
+    const color1 = `hsl(${baseHue}, ${saturation1}%, ${lightness1}%)`;
+    const color2 = `hsl(${complementaryHue}, ${saturation2}%, ${lightness2}%)`;
+
+    return { light: color1, dark: color2 };
+}
+
+
+function generateGrid(seed) {
+    const canvasSize = 360;
+    const gridSize = 12;
+    const boxSize = canvasSize / gridSize;
+
+    // Create the canvas
+    const canvas = createCanvas(canvasSize, canvasSize);
+    const ctx = canvas.getContext('2d');
+
+    // Seeded random function
+    function seededRandom(seed) {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
+    // Set the seed for repeatable results
+    let randomSeed = seed;
+    const colors = generateComplementaryPastelColors(seed);
+
+    // Generate the grid
+    for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+            const colorValue = seededRandom(randomSeed++) > ((seed % 3) + 2) / 10 ? colors.light : colors.dark;
+            ctx.fillStyle = colorValue;
+            ctx.fillRect(x * boxSize, y * boxSize, boxSize, boxSize);
+        }
+    }
+
+    // Save the canvas to a file
+    const buffer = canvas.toBuffer('image/png');
+    return buffer;
+}
 
 function hashPassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
@@ -60,6 +120,31 @@ const importWallet = async (privateKey) => {
     }
 }
 
+const getJsonFromTokenId = async (tokenId) => {
+    try {
+        const response = await axios.get(`https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${tokenId}.json`);
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+const getImageFromTokenId = async (tokenId) => {
+    try {
+        const response = await axios.get(`https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${tokenId}.png`,
+            {
+                responseType: 'stream'
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
 module.exports = {
     getPubKeyFromPrivateKey,
     createNewWallet,
@@ -67,5 +152,8 @@ module.exports = {
     decryptPrivateKeyWithAddress,
     checkForStrongPassword,
     hashPassword,
-    importWallet
+    importWallet,
+    getJsonFromTokenId,
+    getImageFromTokenId,
+    generateGrid
 }

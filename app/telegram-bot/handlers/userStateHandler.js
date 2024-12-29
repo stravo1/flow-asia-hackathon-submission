@@ -1,5 +1,5 @@
 const { getUser, attachWalletToUser, deleteWalletFromUser } = require("../utils/databaseActions");
-const { getPubKeyFromPrivateKey, checkForStrongPassword, createNewWallet, hashPassword, decryptPrivateKeyWithAddress, importWallet } = require("../utils/utils");
+const { getPubKeyFromPrivateKey, checkForStrongPassword, createNewWallet, hashPassword, decryptPrivateKeyWithAddress, importWallet, getJsonFromTokenId, getImageFromTokenId, generateGrid } = require("../utils/utils");
 
 const userStateHandler = async (message, bot, userState) => {
     console.log(userState[message.chat.id]);
@@ -108,6 +108,41 @@ const userStateHandler = async (message, bot, userState) => {
                 await bot.sendMessage(message.chat.id, 'Error importing wallet');
             }
             userState[message.chat.id] = { state: 'idle' };
+            break;
+
+        case 'getNFT':
+            try {
+                const nftDetails = await getJsonFromTokenId(message.text);
+                if(nftDetails == null) {
+                    await bot.sendMessage(message.chat.id, 'NFT not found');
+                    userState[message.chat.id] = { state: 'idle' };
+                    return;
+                }
+                const loadingMessage = await bot.sendMessage(message.chat.id, 'Loading NFT...');
+                getImageFromTokenId(message.text).then(
+                    (image) => {
+                        bot.deleteMessage(message.chat.id, loadingMessage.message_id);
+                        bot.sendPhoto(message.chat.id, image, {
+                            caption: `Name: ${nftDetails.name}\nDescription: ${nftDetails.description}`
+                        });
+                    }
+                ).catch(
+                    (error) => {
+                        bot.deleteMessage(message.chat.id, loadingMessage.message_id);
+                        bot.sendMessage(message.chat.id, 'Error getting NFT. Are you sure the token ID is correct?');
+                    }
+                );
+            } catch (error) {
+                console.error('Error getting NFT:', error);
+                await bot.sendMessage(message.chat.id, 'Error getting NFT');
+            }
+            userState[message.chat.id] = { state: 'idle' };
+            break;
+
+        case 'getGrid':
+            const grid = generateGrid(message.text);
+            await bot.sendPhoto(message.chat.id, grid);
+            // userState[message.chat.id] = { state: 'idle' };
             break;
 
         default:

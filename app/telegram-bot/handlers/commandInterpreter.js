@@ -86,6 +86,14 @@ const commandInterpreter = async (message, bot, userState) => {
                 }
             });
             break;
+        case '/getnft':
+            await bot.sendMessage(message.chat.id, 'Please send a token id');
+            userState[message.chat.id] = { state: 'getNFT'};
+            break;
+        case '/getgrid':
+            await bot.sendMessage(message.chat.id, 'Please send a seed');
+            userState[message.chat.id] = { state: 'getGrid' };
+            break;
         default:
             await bot.sendMessage(message.chat.id, 'Unknown command');
             break;
