@@ -41,6 +41,10 @@ contract FlowHackathonNFT is
         // console.log("creator", msg.sender);
     }
 
+    function getTotalSupply() external view onlyOwner returns (uint256) {
+        return _nextTokenId;
+    }
+
     // Set the mint price (only owner)
     function setMintPrice(uint256 newPrice) external onlyOwner {
         require(newPrice > 0, "Mint price must be greater than zero");
