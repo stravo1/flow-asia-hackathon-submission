@@ -25,6 +25,38 @@ const callBackQueryHandler = async (query, bot, userState) => {
             text: 'Please send your password'
         });
         return;
+    } else if (query.data.startsWith('enableMinting:')) {
+        const walletAddress = query.data.split(':')[1];
+        userState[query.message.chat.id] = { state: 'enableMinting', walletAddress, step: 1 };
+        await bot.sendMessage(query.message.chat.id, 'Please send your password');
+        await bot.answerCallbackQuery(query.id, {
+            text: 'Please send your password'
+        });
+        return;
+    } else if (query.data.startsWith('disableMinting:')) {
+        const walletAddress = query.data.split(':')[1];
+        userState[query.message.chat.id] = { state: 'disableMinting', walletAddress, step: 1 };
+        await bot.sendMessage(query.message.chat.id, 'Please send your password');
+        await bot.answerCallbackQuery(query.id, {
+            text: 'Please send your password'
+        });
+        return;
+    } else if (query.data.startsWith('setMintPrice:')) {
+        const walletAddress = query.data.split(':')[1];
+        userState[query.message.chat.id] = { state: 'setMintPrice', walletAddress, step: 1 };
+        await bot.sendMessage(query.message.chat.id, 'Please send a price (in ETH)');
+        await bot.answerCallbackQuery(query.id, {
+            text: 'Please send a price (in ETH)'
+        });
+        return;
+    } else if (query.data.startsWith('ownerMint:')) {
+        const walletAddress = query.data.split(':')[1];
+        userState[query.message.chat.id] = { state: 'ownerMint', walletAddress, step: 1 };
+        await bot.sendMessage(query.message.chat.id, 'Please send your password');
+        await bot.answerCallbackQuery(query.id, {
+            text: 'Please send your password'
+        });
+        return;
     }
 
     switch (query.data) {

@@ -1,3 +1,4 @@
+const { getMintEnabled, getMintPrice } = require("../utils/blockchainActions");
 const { safeCreateUser } = require("../utils/databaseActions");
 
 const commandInterpreter = async (message, bot, userState) => {
@@ -88,11 +89,85 @@ const commandInterpreter = async (message, bot, userState) => {
             break;
         case '/getnft':
             await bot.sendMessage(message.chat.id, 'Please send a token id');
-            userState[message.chat.id] = { state: 'getNFT'};
+            userState[message.chat.id] = { state: 'getNFT' };
             break;
         case '/getgrid':
             await bot.sendMessage(message.chat.id, 'Please send a seed');
             userState[message.chat.id] = { state: 'getGrid' };
+            break;
+        case '/enableminting':
+            if (await getMintEnabled(user.walletsAssociated[0].address)) {
+                await bot.sendMessage(message.chat.id, 'Minting is already enabled');
+                break;
+            }
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, 'Please select a wallet to send the transaction from', {
+                reply_markup: {
+                    inline_keyboard: user.walletsAssociated.map((wallet, index) => [
+                        { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `enableMinting:${wallet.address}` }
+                    ])
+                }
+            });
+            break;
+        case '/disableminting':
+            if (!(await getMintEnabled(user.walletsAssociated[0].address))) {
+                await bot.sendMessage(message.chat.id, 'Minting is already disabled');
+                break;
+            }
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, 'Please select a wallet to send the transaction from', {
+                reply_markup: {
+                    inline_keyboard: user.walletsAssociated.map((wallet, index) => [
+                        { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `disableMinting:${wallet.address}` }
+                    ])
+                }
+            });
+            break;
+        case '/getmintenabled':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, `Minting is ${await getMintEnabled(user.walletsAssociated[0].address) ? 'enabled' : 'disabled'}`);
+            break;
+        case '/setmintprice':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, 'Please select a wallet to send the transaction from', {
+                reply_markup: {
+                    inline_keyboard: user.walletsAssociated.map((wallet, index) => [
+                        { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `setMintPrice:${wallet.address}` }
+                    ])
+                }
+            });
+            break;
+        case '/getmintprice':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, `The mint price is ${await getMintPrice(user.walletsAssociated[0].address)} ETH`);
+            break;
+        case '/ownermint':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, 'Please select a wallet to send the transaction from', {
+                reply_markup: {
+                    inline_keyboard: user.walletsAssociated.map((wallet, index) => [
+                        { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `ownerMint:${wallet.address}` }
+                    ])
+                }
+            });
             break;
         default:
             await bot.sendMessage(message.chat.id, 'Unknown command');

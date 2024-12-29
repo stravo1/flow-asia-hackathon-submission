@@ -4,6 +4,7 @@ const { default: axios } = require('axios');
 const crypto = require('crypto');
 const { Web3 } = require('web3');
 const { createCanvas } = require('canvas');
+const fs = require('fs');
 
 function generateComplementaryPastelColors(seed) {
     // Seeded random function
@@ -145,6 +146,23 @@ const getImageFromTokenId = async (tokenId) => {
     }
 }
 
+const createJSONSchemaFileForTokenId = (tokenId, path) => {
+    const jsonSchema = {
+        name: `FHNFT#${tokenId}`,
+        description: `Flow Hackathon NFT #${tokenId}`,
+        image: `https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${tokenId}.png`
+    }
+    // save it in a file
+    fs.writeFileSync(`${path}/FHNFT#${tokenId}.json`, JSON.stringify(jsonSchema));
+    return jsonSchema;
+}
+
+const createImageFileForTokenId = (tokenId, path) => {
+    const image = generateGrid(parseInt(tokenId));
+    fs.writeFileSync(`${path}/FHNFT#${tokenId}.png`, image);
+    return image;
+}
+
 module.exports = {
     getPubKeyFromPrivateKey,
     createNewWallet,
@@ -155,5 +173,7 @@ module.exports = {
     importWallet,
     getJsonFromTokenId,
     getImageFromTokenId,
-    generateGrid
+    generateGrid,
+    createJSONSchemaFileForTokenId,
+    createImageFileForTokenId
 }
