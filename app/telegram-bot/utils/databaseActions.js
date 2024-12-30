@@ -51,7 +51,9 @@ const createNewNFT = async (address, nftId) => {
             owner: address,
             metadata: JSON.stringify(metadata),
             purchaseEnabled: false,
-            purchasePrice: 0
+            purchasePrice: 0,
+            createdAt: new Date(),
+            lastActivity: new Date()
         }
     );
     console.log("newNFT: ", newNFT);
@@ -63,6 +65,7 @@ const changeNFTListingStatus = async (nftId, purchaseEnabled, purchasePrice) => 
     const nft = await NFTModel.findOne({ tokenId: nftId });
     nft.purchaseEnabled = purchaseEnabled;
     nft.purchasePrice = purchasePrice;
+    nft.lastActivity = new Date();
     await nft.save();
     return nft;
 }
@@ -70,6 +73,7 @@ const changeNFTListingStatus = async (nftId, purchaseEnabled, purchasePrice) => 
 const transferNFT = async (nftId, to) => {
     const nft = await NFTModel.findOne({ tokenId: nftId });
     nft.owner = to;
+    nft.lastActivity = new Date();
     await nft.save();
     return nft;
 }

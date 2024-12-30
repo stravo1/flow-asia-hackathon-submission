@@ -7,6 +7,8 @@ const NFTModel = mongoose.model('NFT', {
     metadata: String,
     purchaseEnabled: Boolean,
     purchasePrice: Number, // in ETH
+    createdAt: Date,
+    lastActivity: Date,
 });
 
 module.exports = NFTModel;
