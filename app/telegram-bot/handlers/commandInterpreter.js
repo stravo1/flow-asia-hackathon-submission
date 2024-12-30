@@ -1,4 +1,4 @@
-const { getMintEnabled, getMintPrice } = require("../utils/blockchainActions");
+const { getMintEnabled, getMintPrice, getMaxSupply } = require("../utils/blockchainActions");
 const { safeCreateUser, listAllNFTsForUser } = require("../utils/databaseActions");
 
 const commandInterpreter = async (message, bot, userState) => {
@@ -260,6 +260,20 @@ const commandInterpreter = async (message, bot, userState) => {
                     ])
                 }
             });
+            break;
+        case '/getmaxsupply':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, `The max supply is ${await getMaxSupply(user.walletsAssociated[0].address)}`);
+            break;
+        case '/getnfturi':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, `The NFT URI is ${await getNFTURI(user.walletsAssociated[0].address)}`);
             break;
         default:
             await bot.sendMessage(message.chat.id, 'Unknown command');

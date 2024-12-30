@@ -262,6 +262,13 @@ const getNFTOwner = async (tokenId) => {
     return owner;
 }
 
+const getNFTURI = async (tokenId) => {
+    const web3 = new Web3(process.env.FLOW_RPC_URL);
+    const contract = new web3.eth.Contract(FlowHackathonNFT.abi, process.env.FLOW_HACKATHON_NFT_ADDRESS);
+    const uri = await contract.methods.tokenURI(tokenId).call();
+    return uri;
+}
+
 module.exports = {
     enableMinting,
     disableMinting,
@@ -276,5 +283,6 @@ module.exports = {
     disallowBuy,
     buy,
     getNFTPrice,
-    getNFTOwner
+    getNFTOwner,
+    getNFTURI
 };
