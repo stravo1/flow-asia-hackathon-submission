@@ -10,6 +10,8 @@ const path = require('path');
 const { default: Web3 } = require('web3');
 const FlowHackathonNFT = require("../../artifacts/contracts/FlowHackathonNFT.sol/FlowHackathonNFT.json");
 const { pushFiles, localDir, cloneRepo } = require('./utils/githubActions');
+const { createNewNFT, getOwnerOfNFT, changeNFTListingStatus, transferNFT } = require('./utils/databaseActions');
+const { getNFTOwner, getNFTPrice } = require('./utils/blockchainActions');
 const bot = new TelegramBot(process.env.BOT_AUTH_TOKEN, { polling: true });
 
 const userState = {};
@@ -69,21 +71,30 @@ async function subscribeToEvents() {
     subscriptionMintingStatusUpdated.on('data', (data) => {
         console.log(data.event, data.returnValues);
     });
-    subscriptionNftCreated.on('data', (data) => {
+    subscriptionNftCreated.on('data', async (data) => {
         console.log(data.event, data.returnValues);
+        const owner = await getNFTOwner(Number(data.returnValues._tokenId));
+        let nft = await createNewNFT(owner, Number(data.returnValues._tokenId));
+        console.log("nft: ", nft);
     });
     subscriptionTokenMinted.on('data', (data) => {
         console.log(data.event, data.returnValues);
     });
     subscriptionNftBought.on('data', (data) => {
         console.log(data.event, data.returnValues);
+        transferNFT(Number(data.returnValues._tokenId), data.returnValues._buyer);
     });
     subscriptionNftListed.on('data', (data) => {
         console.log(data.event, data.returnValues);
+        changeNFTListingStatus(Number(data.returnValues._tokenId), true, Number(data.returnValues._price));
     });
     subscriptionNftDelisted.on('data', (data) => {
         console.log(data.event, data.returnValues);
+        changeNFTListingStatus(Number(data.returnValues._tokenId), false, 0);
     });
+    console.log('Subscribed to events');
 }
 
-subscribeToEvents();
+setTimeout(() => {
+    subscribeToEvents();
+}, 1000);

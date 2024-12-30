@@ -10,16 +10,19 @@ const getGasEstimate = async (methodName, fromAddress, ...argsArray) => {
     if (methodName === "mint") {
         argsArray[0] = web3.utils.toWei(argsArray[0].toString(), "ether");
     }
+    if (methodName === "allowBuy") {
+        argsArray[1] = web3.utils.toWei(argsArray[1].toString(), "ether");
+    }
     console.log(methodName, argsArray, fromAddress);
     const contract = new web3.eth.Contract(
         FlowHackathonNFT.abi,
         process.env.FLOW_HACKATHON_NFT_ADDRESS
     );
     const gasEstimate = await contract.methods[methodName](
-        ...(methodName === "mint" ? argsArray.slice(1) : argsArray)
+        ...(methodName === "mint" || methodName === "buy" ? argsArray.slice(1) : argsArray)
     ).estimateGas({
         from: fromAddress,
-        ...(methodName === "mint" ? { value: argsArray[0] } : {}),
+        ...(methodName === "mint" || methodName === "buy" ? { value: argsArray[0] } : {}),
     });
     const gasPrice = await web3.eth.getGasPrice();
     return {
@@ -125,6 +128,7 @@ const setMintPrice = async (
     const receipt = await web3.eth.sendSignedTransaction(
         signedTx.rawTransaction
     );
+    console.log(receipt);
     console.log("Transaction Hash:", receipt.transactionHash);
     return receipt.transactionHash;
 };
@@ -194,6 +198,70 @@ const mint = async (address, privateKey, uri, price, gasEstimate, gasPrice) => {
     return receipt.transactionHash;
 };
 
+const allowBuy = async (address, privateKey, tokenId, price, gasEstimate, gasPrice) => {
+    const web3 = new Web3(process.env.FLOW_RPC_URL);
+    const contract = new web3.eth.Contract(FlowHackathonNFT.abi, process.env.FLOW_HACKATHON_NFT_ADDRESS);
+    const processedPrice = web3.utils.toWei(price.toString(), "ether");
+    const tx = {
+        from: address,
+        to: process.env.FLOW_HACKATHON_NFT_ADDRESS,
+        data: contract.methods.allowBuy(tokenId, processedPrice).encodeABI(),
+        gas: gasEstimate,
+        gasPrice: gasPrice,
+    };
+    const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
+    const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log("Transaction Hash:", receipt.transactionHash);
+    return receipt.transactionHash;
+};
+
+const disallowBuy = async (address, privateKey, tokenId, gasEstimate, gasPrice) => {
+    const web3 = new Web3(process.env.FLOW_RPC_URL);
+    const contract = new web3.eth.Contract(FlowHackathonNFT.abi, process.env.FLOW_HACKATHON_NFT_ADDRESS);
+    const tx = {
+        from: address,
+        to: process.env.FLOW_HACKATHON_NFT_ADDRESS,
+        data: contract.methods.disallowBuy(tokenId).encodeABI(),
+        gas: gasEstimate,
+        gasPrice: gasPrice,
+    };
+    const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
+    const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log("Transaction Hash:", receipt.transactionHash);
+    return receipt.transactionHash;
+};
+
+const buy = async (address, privateKey, price, tokenId, gasEstimate, gasPrice) => {
+    const web3 = new Web3(process.env.FLOW_RPC_URL);
+    const contract = new web3.eth.Contract(FlowHackathonNFT.abi, process.env.FLOW_HACKATHON_NFT_ADDRESS);
+    const tx = {
+        from: address,
+        to: process.env.FLOW_HACKATHON_NFT_ADDRESS,
+        data: contract.methods.buy(tokenId).encodeABI(),
+        gas: gasEstimate,
+        gasPrice: gasPrice,
+        value: price,
+    };
+    const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
+    const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log("Transaction Hash:", receipt.transactionHash);
+    return receipt.transactionHash;
+};
+
+const getNFTPrice = async (tokenId) => {
+    const web3 = new Web3(process.env.FLOW_RPC_URL);
+    const contract = new web3.eth.Contract(FlowHackathonNFT.abi, process.env.FLOW_HACKATHON_NFT_ADDRESS);
+    const price = await contract.methods.tokenIdToPrice(tokenId).call();
+    return web3.utils.fromWei(price, "ether");
+}
+
+const getNFTOwner = async (tokenId) => {
+    const web3 = new Web3(process.env.FLOW_RPC_URL);
+    const contract = new web3.eth.Contract(FlowHackathonNFT.abi, process.env.FLOW_HACKATHON_NFT_ADDRESS);
+    const owner = await contract.methods.ownerOf(tokenId).call();
+    return owner;
+}
+
 module.exports = {
     enableMinting,
     disableMinting,
@@ -204,4 +272,9 @@ module.exports = {
     mintByOwner,
     getMaxSupply,
     mint,
+    allowBuy,
+    disallowBuy,
+    buy,
+    getNFTPrice,
+    getNFTOwner
 };

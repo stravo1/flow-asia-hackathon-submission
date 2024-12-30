@@ -6,11 +6,17 @@ const {
     setMintPrice,
     getMaxSupply,
     mintByOwner,
+    getMintPrice,
+    mint,
+    allowBuy,
+    disallowBuy,
+    buy,
 } = require("../utils/blockchainActions");
 const {
     getUser,
     attachWalletToUser,
     deleteWalletFromUser,
+    getNFTDetails,
 } = require("../utils/databaseActions");
 const {
     getPubKeyFromPrivateKey,
@@ -505,7 +511,7 @@ const userStateHandler = async (message, bot, userState) => {
                         "ownerMint",
                         userState[message.chat.id].walletAddress,
                         userState[message.chat.id].walletAddress,
-                        `https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${maxSupply}.json`
+                        `https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${maxSupply}.json`
                     );
                     console.log(gasEstimate);
                     await bot.sendMessage(
@@ -542,13 +548,14 @@ const userStateHandler = async (message, bot, userState) => {
                         message.chat.id,
                         "Error owner minting"
                     );
+                    userState[message.chat.id] = { state: "idle" };
                 }
             } else if (userState[message.chat.id].step === 2) {
                 if (message.text === "Yes") {
                     mintByOwner(
                         userState[message.chat.id].walletAddress,
                         userState[message.chat.id].privateKey,
-                        `https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${userState[message.chat.id].maxSupply
+                        `https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${userState[message.chat.id].maxSupply
                         }.json`,
                         userState[message.chat.id].gasEstimate,
                         userState[message.chat.id].gasPrice
@@ -573,13 +580,13 @@ const userStateHandler = async (message, bot, userState) => {
                                     caption: `Name: ${jsonSchema.name}\nDescription: ${jsonSchema.description}`,
                                 });
                             })
-                            .catch(async (error) => {
-                                console.error("Error pushing files:", error);
-                                await bot.sendMessage(
-                                    message.chat.id,
-                                    "Error pushing files"
-                                );
-                            });
+                                .catch(async (error) => {
+                                    console.error("Error pushing files:", error);
+                                    await bot.sendMessage(
+                                        message.chat.id,
+                                        "Error pushing files"
+                                    );
+                                });
                         })
                         .catch(async (error) => {
                             console.error("Error owner minting:", error);
@@ -594,6 +601,292 @@ const userStateHandler = async (message, bot, userState) => {
                         "Owner mint not confirmed"
                     );
                 }
+                userState[message.chat.id] = { state: "idle" };
+            }
+            break;
+        case "mint":
+            if (userState[message.chat.id].step === 1) {
+                try {
+                    let password = message.text;
+                    const user = await getUser(message.from.id);
+                    if (user.password) {
+                        if (hashPassword(password) !== user.password) {
+                            await bot.sendMessage(message.chat.id, 'Password does not match. Try again.');
+                            return;
+                        }
+                    }
+                    let wallet = user.walletsAssociated.find(
+                        (wallet) =>
+                            wallet.address ===
+                            userState[message.chat.id].walletAddress
+                    );
+                    let privateKey = decryptPrivateKeyWithAddress(
+                        wallet.privateKeyEncrypted,
+                        password,
+                        wallet.address
+                    );
+                    let maxSupply = await getMaxSupply(
+                        userState[message.chat.id].walletAddress
+                    );
+                    let mintingPrice = await getMintPrice(
+                        userState[message.chat.id].walletAddress
+                    );
+                    let gasEstimate = await getGasEstimate(
+                        "mint",
+                        userState[message.chat.id].walletAddress,
+                        mintingPrice,
+                        `https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${maxSupply}.json`
+                    );
+                    console.log(gasEstimate);
+                    await bot.sendMessage(message.chat.id, `Current mint price: ${mintingPrice} ETH.\n Gas price: ${gasEstimate.etherValue} ETH. Are you sure you want to continue?`, {
+                        reply_markup: {
+                            keyboard: [[{ text: "Yes" }], [{ text: "No" }]],
+                            one_time_keyboard: true,
+                            resize_keyboard: true,
+                        },
+                    });
+                    userState[message.chat.id].step = 2;
+                    userState[message.chat.id].gasEstimate = gasEstimate.gasEstimate;
+                    userState[message.chat.id].gasPrice = gasEstimate.gasPrice;
+                    userState[message.chat.id].privateKey = privateKey;
+                    userState[message.chat.id].maxSupply = maxSupply;
+                    userState[message.chat.id].mintingPrice = mintingPrice;
+                }
+                catch (error) {
+                    console.error("Error minting:", error);
+                    await bot.sendMessage(message.chat.id, "Error minting");
+                    userState[message.chat.id] = { state: "idle" };
+                }
+            } else if (userState[message.chat.id].step === 2) {
+                if (message.text === "Yes") {
+                    mint(
+                        userState[message.chat.id].walletAddress,
+                        userState[message.chat.id].privateKey,
+                        `https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${userState[message.chat.id].maxSupply}.json`,
+                        userState[message.chat.id].mintingPrice,
+                        userState[message.chat.id].gasEstimate,
+                        userState[message.chat.id].gasPrice
+                    ).then(async (txHash) => {
+                        await bot.sendMessage(message.chat.id, `NFT minted successfully\nTransaction hash: ${txHash}`);
+                        let jsonSchema = createJSONSchemaFileForTokenId(
+                            userState[message.chat.id].maxSupply,
+                            localDir
+                        );
+                        let image = createImageFileForTokenId(
+                            userState[message.chat.id].maxSupply,
+                            localDir
+                        );
+                        pushFiles(
+                            userState[message.chat.id].maxSupply
+                        ).then(async () => {
+                            await bot.sendPhoto(message.chat.id, image, {
+                                caption: `Name: ${jsonSchema.name}\nDescription: ${jsonSchema.description}`,
+                            });
+                        })
+                            .catch(async (error) => {
+                                console.error("Error pushing files:", error);
+                                await bot.sendMessage(
+                                    message.chat.id,
+                                    "Error pushing files"
+                                );
+                            });
+                    }).catch(async (error) => {
+                        console.error("Error minting:", error);
+                        await bot.sendMessage(message.chat.id, "Error minting");
+                    });
+                } else {
+                    await bot.sendMessage(message.chat.id, "Minting not confirmed");
+                }
+                userState[message.chat.id] = { state: "idle" };
+            }
+            break;
+        case 'allowBuy':
+            if (userState[message.chat.id].step === 1) {
+                try {
+                    let password = message.text;
+                    const user = await getUser(message.from.id);
+                    if (user.password) {
+                        if (hashPassword(password) !== user.password) {
+                            await bot.sendMessage(message.chat.id, "Password does not match. Try again.");
+                            return;
+                        }
+                    }
+                    let nft = await getNFTDetails(userState[message.chat.id].nftId);
+                    let walletAddresses = user.walletsAssociated.map(wallet => wallet.address);
+                    if (!walletAddresses.includes(nft.owner)) {
+                        await bot.sendMessage(message.chat.id, "You are not the owner of this NFT");
+                        return;
+                    }
+                    let wallet = user.walletsAssociated.find(wallet => wallet.address === nft.owner);
+                    let privateKey = decryptPrivateKeyWithAddress(wallet.privateKeyEncrypted, password, wallet.address);
+                    await bot.sendMessage(message.chat.id, "Please send the price you want to set for the NFT");
+                    userState[message.chat.id].step = 2;
+                    userState[message.chat.id].nftId = nft.tokenId;
+                    userState[message.chat.id].privateKey = privateKey;
+                    userState[message.chat.id].walletAddress = nft.owner;
+                } catch (error) {
+                    console.error("Error allowing buy:", error);
+                    await bot.sendMessage(message.chat.id, "Error allowing buy");
+                    userState[message.chat.id] = { state: "idle" };
+                }
+            } else if (userState[message.chat.id].step === 2) {
+                try {
+                    let price = message.text;
+                    if (price <= 0) {
+                        await bot.sendMessage(message.chat.id, "Price must be greater than 0");
+                        return;
+                    }
+                    let gasEstimate = await getGasEstimate("allowBuy", userState[message.chat.id].walletAddress, userState[message.chat.id].nftId, price);
+                    console.log(gasEstimate);
+                    await bot.sendMessage(message.chat.id, `Gas price: ${gasEstimate.etherValue} ETH. Are you sure you want to continue?`, {
+                        reply_markup: {
+                            keyboard: [[{ text: "Yes" }], [{ text: "No" }]],
+                            one_time_keyboard: true,
+                            resize_keyboard: true,
+                        },
+                    });
+                    userState[message.chat.id].step = 3;
+                    userState[message.chat.id].gasEstimate = gasEstimate.gasEstimate;
+                    userState[message.chat.id].gasPrice = gasEstimate.gasPrice;
+                    userState[message.chat.id].price = price;
+                } catch (error) {
+                    console.error("Error allowing buy:", error);
+                    await bot.sendMessage(message.chat.id, "Error allowing buy");
+                    userState[message.chat.id] = { state: "idle" };
+                }
+            } else if (userState[message.chat.id].step === 3) {
+                if (message.text === "Yes") {
+                    try {
+                        let txHash = await allowBuy(userState[message.chat.id].walletAddress, userState[message.chat.id].privateKey, userState[message.chat.id].nftId, userState[message.chat.id].price, userState[message.chat.id].gasEstimate, userState[message.chat.id].gasPrice);
+                        await bot.sendMessage(message.chat.id, `NFT listed for sale\nTransaction hash: ${txHash}`);
+                    } catch (error) {
+                        console.error("Error allowing buy:", error);
+                        await bot.sendMessage(message.chat.id, "Error allowing buy");
+                    }
+                } else {
+                    await bot.sendMessage(message.chat.id, "NFT not listed for sale");
+                }
+                userState[message.chat.id] = { state: "idle" };
+            }
+            break;
+        case 'disallowBuy':
+            if (userState[message.chat.id].step === 1) {
+                try {
+                    let password = message.text;
+                    const user = await getUser(message.from.id);
+                    if (user.password) {
+                        if (hashPassword(password) !== user.password) {
+                            await bot.sendMessage(message.chat.id, "Password does not match. Try again.");
+                            return;
+                        }
+                    }
+                    let nft = await getNFTDetails(userState[message.chat.id].nftId);
+                    console.log(nft);
+                    let walletAddresses = user.walletsAssociated.map(wallet => wallet.address);
+                    if (!walletAddresses.includes(nft.owner)) {
+                        await bot.sendMessage(message.chat.id, "You are not the owner of this NFT");
+                        return;
+                    }
+                    let wallet = user.walletsAssociated.find(wallet => wallet.address === nft.owner);
+                    let privateKey = decryptPrivateKeyWithAddress(wallet.privateKeyEncrypted, password, wallet.address);
+
+                    let gasEstimate = await getGasEstimate("disallowBuy", nft.owner, userState[message.chat.id].nftId);
+                    console.log(gasEstimate);
+                    await bot.sendMessage(message.chat.id, `Gas price: ${gasEstimate.etherValue} ETH. Are you sure you want to continue?`, {
+                        reply_markup: {
+                            keyboard: [[{ text: "Yes" }], [{ text: "No" }]],
+                            one_time_keyboard: true,
+                            resize_keyboard: true,
+                        },
+                    });
+                    userState[message.chat.id].step = 2;
+                    userState[message.chat.id].gasEstimate = gasEstimate.gasEstimate;
+                    userState[message.chat.id].gasPrice = gasEstimate.gasPrice;
+                    userState[message.chat.id].nftId = nft.tokenId;
+                    userState[message.chat.id].privateKey = privateKey;
+                    userState[message.chat.id].walletAddress = nft.owner;
+                } catch (error) {
+                    console.error("Error allowing buy:", error);
+                    await bot.sendMessage(message.chat.id, "Error allowing buy");
+                    userState[message.chat.id] = { state: "idle" };
+                }
+            } else if (userState[message.chat.id].step === 2) {
+                if (message.text === "Yes") {
+                    try {
+                        let txHash = await disallowBuy(userState[message.chat.id].walletAddress, userState[message.chat.id].privateKey, userState[message.chat.id].nftId, userState[message.chat.id].gasEstimate, userState[message.chat.id].gasPrice);
+                        await bot.sendMessage(message.chat.id, `NFT listed for sale\nTransaction hash: ${txHash}`);
+                    } catch (error) {
+                        console.error("Error allowing buy:", error);
+                        await bot.sendMessage(message.chat.id, "Error allowing buy");
+                    }
+                } else {
+                    await bot.sendMessage(message.chat.id, "NFT not listed for sale");
+                }
+                userState[message.chat.id] = { state: "idle" };
+            }
+            break;
+
+        case 'buy':
+            if (userState[message.chat.id].step === 1) {
+                try {
+                    let password = message.text;
+                    const user = await getUser(message.from.id);
+                    if (user.password) {
+                        if (hashPassword(password) !== user.password) {
+                            await bot.sendMessage(message.chat.id, "Password does not match. Try again.");
+                            return;
+                        }
+                    }
+                    let wallet = user.walletsAssociated.find(wallet => wallet.address === userState[message.chat.id].walletAddress);
+                    let privateKey = decryptPrivateKeyWithAddress(wallet.privateKeyEncrypted, password, wallet.address);
+                    await bot.sendMessage(message.chat.id, "Please send the NFT ID you want to buy");
+                    userState[message.chat.id].step = 2;
+                    userState[message.chat.id].privateKey = privateKey;
+                } catch (error) {
+                    console.error("Error buying:", error);
+                    await bot.sendMessage(message.chat.id, "Error buying");
+                    userState[message.chat.id] = { state: "idle" };
+                }
+            } else if (userState[message.chat.id].step === 2) {
+                try {
+                    let nftId = message.text;
+                    let nft = await getNFTDetails(nftId);
+                    if (!nft || nft.purchasePrice === 0) {
+                        await bot.sendMessage(message.chat.id, "NFT is not listed for sale or not found!");
+                        return;
+                    }
+                    let gasEstimate = await getGasEstimate("buy", userState[message.chat.id].walletAddress, nft.purchasePrice, nftId);
+                    console.log(gasEstimate);
+                    await bot.sendMessage(message.chat.id, `NFT price: ${Web3.utils.fromWei(nft.purchasePrice, "ether")} ETH.\nGas price: ${gasEstimate.etherValue} ETH. Are you sure you want to continue?`, {
+                        reply_markup: {
+                            keyboard: [[{ text: "Yes" }], [{ text: "No" }]],
+                            one_time_keyboard: true,
+                            resize_keyboard: true,
+                        },
+                    });
+                    userState[message.chat.id].step = 3;
+                    userState[message.chat.id].nftId = nftId;
+                    userState[message.chat.id].gasEstimate = gasEstimate.gasEstimate;
+                    userState[message.chat.id].gasPrice = gasEstimate.gasPrice;
+                    userState[message.chat.id].price = nft.purchasePrice;
+                } catch (error) {
+                    console.error("Error buying:", error);
+                    await bot.sendMessage(message.chat.id, "Error buying");
+                    userState[message.chat.id] = { state: "idle" };
+                }
+            } else if (userState[message.chat.id].step === 3) {
+                if (message.text === "Yes") {
+                    try {
+                        let txHash = await buy(userState[message.chat.id].walletAddress, userState[message.chat.id].privateKey, userState[message.chat.id].price, userState[message.chat.id].nftId, userState[message.chat.id].gasEstimate, userState[message.chat.id].gasPrice);
+                        await bot.sendMessage(message.chat.id, `NFT bought successfully\nTransaction hash: ${txHash}`);
+                    } catch (error) {
+                        console.error("Error buying:", error);
+                        await bot.sendMessage(message.chat.id, "Error buying");
+                    }
+                } else {
+                    await bot.sendMessage(message.chat.id, "NFT not bought");
+                }
+                userState[message.chat.id] = { state: "idle" };
             }
             break;
         default:

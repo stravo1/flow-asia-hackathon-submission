@@ -41,7 +41,7 @@ contract FlowHackathonNFT is
         // console.log("creator", msg.sender);
     }
 
-    function getTotalSupply() external view onlyOwner returns (uint256) {
+    function getTotalSupply() external view returns (uint256) {
         return _nextTokenId;
     }
 

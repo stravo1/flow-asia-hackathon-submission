@@ -15,8 +15,11 @@ node_modules
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+ignition/deployments/chain-545
 
 # repce with repo name - /app/telegram-bot/repo_name
-/app/telegram-bot/flow-hackathon-nft-storage 
+app/telegram-bot/flow-asia-hackathon-nft-storage
 
 pnpm-lock.yaml
+
+hardhat.config.js

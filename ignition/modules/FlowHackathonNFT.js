@@ -3,7 +3,7 @@
 
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
-const initialOwnerAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+const initialOwnerAddress = "0xf8e80F7183DE9B865e9f087e899CC2Cb06BAAB5B";
 
 module.exports = buildModule("FlowHackathonNFT", (m) => {
   const initialOwner = m.getParameter("initialOwner", initialOwnerAddress);

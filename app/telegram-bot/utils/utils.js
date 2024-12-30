@@ -123,7 +123,7 @@ const importWallet = async (privateKey) => {
 
 const getJsonFromTokenId = async (tokenId) => {
     try {
-        const response = await axios.get(`https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${tokenId}.json`);
+        const response = await axios.get(`https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${tokenId}.json`);
         console.log(response.data);
         return response.data;
     } catch (error) {
@@ -134,7 +134,7 @@ const getJsonFromTokenId = async (tokenId) => {
 
 const getImageFromTokenId = async (tokenId) => {
     try {
-        const response = await axios.get(`https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${tokenId}.png`,
+        const response = await axios.get(`https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${tokenId}.png`,
             {
                 responseType: 'stream'
             }
@@ -150,7 +150,7 @@ const createJSONSchemaFileForTokenId = (tokenId, path) => {
     const jsonSchema = {
         name: `FHNFT#${tokenId}`,
         description: `Flow Hackathon NFT #${tokenId}`,
-        image: `https://raw.githubusercontent.com/stravo1/flow-hackathon-nft-storage/refs/heads/main/FHNFT%23${tokenId}.png`
+        image: `https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${tokenId}.png`
     }
     // save it in a file
     fs.writeFileSync(`${path}/FHNFT#${tokenId}.json`, JSON.stringify(jsonSchema));

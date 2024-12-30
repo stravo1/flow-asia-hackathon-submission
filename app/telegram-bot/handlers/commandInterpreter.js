@@ -1,5 +1,5 @@
 const { getMintEnabled, getMintPrice } = require("../utils/blockchainActions");
-const { safeCreateUser } = require("../utils/databaseActions");
+const { safeCreateUser, listAllNFTsForUser } = require("../utils/databaseActions");
 
 const commandInterpreter = async (message, bot, userState) => {
     let user;
@@ -165,6 +165,98 @@ const commandInterpreter = async (message, bot, userState) => {
                 reply_markup: {
                     inline_keyboard: user.walletsAssociated.map((wallet, index) => [
                         { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `ownerMint:${wallet.address}` }
+                    ])
+                }
+            });
+            break;
+        case '/mint':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            if (!(await getMintEnabled(user.walletsAssociated[0].address))) {
+                await bot.sendMessage(message.chat.id, 'Minting is disabled');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, 'Please select a wallet to send the transaction from', {
+                reply_markup: {
+                    inline_keyboard: user.walletsAssociated.map((wallet, index) => [
+                        { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `mint:${wallet.address}` }
+                    ])
+                }
+            });
+            break;
+        case '/viewnftlist':
+            try {
+                if (user.walletsAssociated.length === 0) {
+                    await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                    break;
+                }
+                let nftsOwned = await listAllNFTsForUser(user);
+                if (nftsOwned.length === 0) {
+                    await bot.sendMessage(message.chat.id, 'You have no NFTs owned');
+                    break;
+                }
+                await bot.sendMessage(message.chat.id, 'Please select a NFT to view details', {
+                    reply_markup: {
+                        inline_keyboard: nftsOwned.map((nft, index) => [
+                            { text: `${index + 1}. ${JSON.parse(nft.metadata).name}`, callback_data: `viewNFT:${nft.tokenId}` }
+                        ])
+                    }
+                });
+            } catch (error) {
+                await bot.sendMessage(message.chat.id, 'Error viewing NFT list');
+            }
+            break;
+        case '/allowbuy':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            let nftsOwned = await listAllNFTsForUser(user);
+            if (nftsOwned.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no NFTs owned');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, 'Please select a NFT to list for sale', {
+                reply_markup: {
+                    inline_keyboard: nftsOwned.map((nft, index) => [
+                        { text: `${index + 1}. ${JSON.parse(nft.metadata).name}`, callback_data: `allowBuy:${nft.tokenId}` }
+                    ])
+                }
+            });
+            break;
+        case '/disallowbuy':
+            try {
+                if (user.walletsAssociated.length === 0) {
+                    await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                    break;
+                }
+                let nftsOwned = await listAllNFTsForUser(user);
+                if (nftsOwned.length === 0) {
+                    await bot.sendMessage(message.chat.id, 'You have no NFTs owned');
+                    break;
+                }
+                await bot.sendMessage(message.chat.id, 'Please select a NFT to disallow buying', {
+                    reply_markup: {
+                        inline_keyboard: nftsOwned.map((nft, index) => [
+                            { text: `${index + 1}. ${JSON.parse(nft.metadata).name}`, callback_data: `disallowBuy:${nft.tokenId}` }
+                        ])
+                    }
+                });
+            } catch (error) {
+                await bot.sendMessage(message.chat.id, 'Error disallowing buy');
+            }
+            break;
+        case '/buy':
+            if (user.walletsAssociated.length === 0) {
+                await bot.sendMessage(message.chat.id, 'You have no wallets associated with your account');
+                break;
+            }
+            await bot.sendMessage(message.chat.id, 'Please select a wallet to send the transaction from', {
+                reply_markup: {
+                    inline_keyboard: user.walletsAssociated.map((wallet, index) => [
+                        { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `buy:${wallet.address}` }
                     ])
                 }
             });
