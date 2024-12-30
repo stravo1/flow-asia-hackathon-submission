@@ -11,12 +11,16 @@ const {
     allowBuy,
     disallowBuy,
     buy,
+    getNFTOwner,
 } = require("../utils/blockchainActions");
 const {
     getUser,
     attachWalletToUser,
     deleteWalletFromUser,
     getNFTDetails,
+    createNewNFT,
+    changeNFTListingStatus,
+    transferNFT,
 } = require("../utils/databaseActions");
 const {
     getPubKeyFromPrivateKey,
@@ -504,9 +508,9 @@ const userStateHandler = async (message, bot, userState) => {
                             return;
                         }
                     }
-                    let maxSupply = await getMaxSupply(
+                    let maxSupply = Number(await getMaxSupply(
                         userState[message.chat.id].walletAddress
-                    );
+                    ));
                     let gasEstimate = await getGasEstimate(
                         "ownerMint",
                         userState[message.chat.id].walletAddress,
@@ -555,8 +559,7 @@ const userStateHandler = async (message, bot, userState) => {
                     mintByOwner(
                         userState[message.chat.id].walletAddress,
                         userState[message.chat.id].privateKey,
-                        `https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${userState[message.chat.id].maxSupply
-                        }.json`,
+                        `https://raw.githubusercontent.com/stravo1/${process.env.GITHUB_REPO_NAME}/refs/heads/main/FHNFT%23${userState[message.chat.id].maxSupply}.json`,
                         userState[message.chat.id].gasEstimate,
                         userState[message.chat.id].gasPrice
                     )
@@ -565,6 +568,8 @@ const userStateHandler = async (message, bot, userState) => {
                                 message.chat.id,
                                 `NFT minted successfully\nTransaction hash: ${txHash}`
                             );
+                            const owner = await getNFTOwner(userState[message.chat.id].maxSupply);
+                            await createNewNFT(owner, userState[message.chat.id].maxSupply);
                             let jsonSchema = createJSONSchemaFileForTokenId(
                                 userState[message.chat.id].maxSupply,
                                 localDir
@@ -587,6 +592,7 @@ const userStateHandler = async (message, bot, userState) => {
                                         "Error pushing files"
                                     );
                                 });
+                            userState[message.chat.id] = { state: "idle" };
                         })
                         .catch(async (error) => {
                             console.error("Error owner minting:", error);
@@ -594,14 +600,15 @@ const userStateHandler = async (message, bot, userState) => {
                                 message.chat.id,
                                 "Error owner minting"
                             );
+                            userState[message.chat.id] = { state: "idle" };
                         });
                 } else {
                     await bot.sendMessage(
                         message.chat.id,
                         "Owner mint not confirmed"
                     );
+                    userState[message.chat.id] = { state: "idle" };
                 }
-                userState[message.chat.id] = { state: "idle" };
             }
             break;
         case "mint":
@@ -668,6 +675,8 @@ const userStateHandler = async (message, bot, userState) => {
                         userState[message.chat.id].gasPrice
                     ).then(async (txHash) => {
                         await bot.sendMessage(message.chat.id, `NFT minted successfully\nTransaction hash: ${txHash}`);
+                        const owner = await getNFTOwner(userState[message.chat.id].maxSupply);
+                        await createNewNFT(owner, userState[message.chat.id].maxSupply);
                         let jsonSchema = createJSONSchemaFileForTokenId(
                             userState[message.chat.id].maxSupply,
                             localDir
@@ -690,14 +699,16 @@ const userStateHandler = async (message, bot, userState) => {
                                     "Error pushing files"
                                 );
                             });
+                        userState[message.chat.id] = { state: "idle" };
                     }).catch(async (error) => {
                         console.error("Error minting:", error);
                         await bot.sendMessage(message.chat.id, "Error minting");
+                        userState[message.chat.id] = { state: "idle" };
                     });
                 } else {
                     await bot.sendMessage(message.chat.id, "Minting not confirmed");
+                    userState[message.chat.id] = { state: "idle" };
                 }
-                userState[message.chat.id] = { state: "idle" };
             }
             break;
         case 'allowBuy':
@@ -758,6 +769,7 @@ const userStateHandler = async (message, bot, userState) => {
                 if (message.text === "Yes") {
                     try {
                         let txHash = await allowBuy(userState[message.chat.id].walletAddress, userState[message.chat.id].privateKey, userState[message.chat.id].nftId, userState[message.chat.id].price, userState[message.chat.id].gasEstimate, userState[message.chat.id].gasPrice);
+                        changeNFTListingStatus(Number(userState[message.chat.id].nftId), true, Number(userState[message.chat.id].price));
                         await bot.sendMessage(message.chat.id, `NFT listed for sale\nTransaction hash: ${txHash}`);
                     } catch (error) {
                         console.error("Error allowing buy:", error);
@@ -814,6 +826,7 @@ const userStateHandler = async (message, bot, userState) => {
                 if (message.text === "Yes") {
                     try {
                         let txHash = await disallowBuy(userState[message.chat.id].walletAddress, userState[message.chat.id].privateKey, userState[message.chat.id].nftId, userState[message.chat.id].gasEstimate, userState[message.chat.id].gasPrice);
+                        changeNFTListingStatus(Number(userState[message.chat.id].nftId), false, 0);
                         await bot.sendMessage(message.chat.id, `NFT listed for sale\nTransaction hash: ${txHash}`);
                     } catch (error) {
                         console.error("Error allowing buy:", error);
@@ -878,6 +891,7 @@ const userStateHandler = async (message, bot, userState) => {
                 if (message.text === "Yes") {
                     try {
                         let txHash = await buy(userState[message.chat.id].walletAddress, userState[message.chat.id].privateKey, userState[message.chat.id].price, userState[message.chat.id].nftId, userState[message.chat.id].gasEstimate, userState[message.chat.id].gasPrice);
+                        transferNFT(Number(userState[message.chat.id].nftId), userState[message.chat.id].walletAddress);
                         await bot.sendMessage(message.chat.id, `NFT bought successfully\nTransaction hash: ${txHash}`);
                     } catch (error) {
                         console.error("Error buying:", error);
