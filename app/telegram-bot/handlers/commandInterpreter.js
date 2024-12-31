@@ -39,7 +39,9 @@ const commandInterpreter = async (message, bot, userState) => {
                 '/disallowbuy - Remove NFT from sale\n' +
                 '/buy - Buy an NFT\n\n' +
                 '/getnftsforsale - View NFTs for sale\n' +
-                '/getlatestminted - View latest minted NFTs\n' +
+                '/getlatestminted - View latest minted NFTs\n\n' +
+                '🔄 Misc:\n' +
+                '/cancel - Cancel the current operation\n\n' +
                 '⚙️ Admin Commands:\n' +
                 '/enableminting - Enable minting\n' +
                 '/disableminting - Disable minting\n' +
@@ -119,7 +121,9 @@ const commandInterpreter = async (message, bot, userState) => {
                 '/disallowbuy - Remove NFT from sale\n' +
                 '/buy - Purchase an NFT\n\n' +
                 '/getnftsforsale - View NFTs for sale\n' +
-                '/getlatestminted - View latest minted NFTs\n' +
+                '/getlatestminted - View latest minted NFTs\n\n' +
+                '🔄 Misc:\n' +
+                '/cancel - Cancel the current operation\n\n' +
                 '⚙️ Admin Commands:\n' +
                 '/enableminting - Enable minting\n' +
                 '/disableminting - Disable minting\n' +
