@@ -19,6 +19,7 @@ ignition/deployments/chain-545
 
 # repce with repo name - /app/telegram-bot/repo_name
 app/telegram-bot/flow-asia-hackathon-nft-storage
+/flow-asia-hackathon-nft-storage
 
 pnpm-lock.yaml
 
