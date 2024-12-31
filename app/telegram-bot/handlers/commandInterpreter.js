@@ -350,7 +350,7 @@ const commandInterpreter = async (message, bot, userState) => {
                     return {
                         type: 'photo',
                         media: grid,
-                        caption: `🎯 Token ID: ${nft.tokenId}\n✨ Name: ${JSON.parse(nft.metadata).name}\n👑 Owner: ${nft.owner}\n⏰ Born on: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n📝 ${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? '💰 Price: ' + nft.price + ' ETH' : '🔒 Not for Sale'}`
+                        caption: `🎯 Token ID: ${nft.tokenId}\n✨ Name: ${JSON.parse(nft.metadata).name}\n👑 Owner: ${nft.owner}\n⏰ Born on: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n📝 ${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? '💰 Price: ' + nft.purchasePrice + ' ETH' : '🔒 Not for Sale'}`
                     }
                 });
                 if (nftData.length > 0) {
@@ -383,7 +383,7 @@ const commandInterpreter = async (message, bot, userState) => {
                     return {
                         type: 'photo',
                         media: grid,
-                        caption: `🎯 Token ID: ${nft.tokenId}\n✨ Name: ${JSON.parse(nft.metadata).name}\n👑 Owner: ${nft.owner}\n⏰ Listed on: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n📝 ${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? '💰 Price: ' + nft.price + ' ETH' : '🔒 Not for Sale'}`
+                        caption: `🎯 Token ID: ${nft.tokenId}\n✨ Name: ${JSON.parse(nft.metadata).name}\n👑 Owner: ${nft.owner}\n⏰ Listed on: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n📝 ${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? '💰 Price: ' + nft.purchasePrice + ' ETH' : '🔒 Not for Sale'}`
                     }
                 });
                 await bot.sendMediaGroup(message.chat.id, nftData);
