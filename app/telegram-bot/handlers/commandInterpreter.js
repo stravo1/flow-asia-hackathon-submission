@@ -10,19 +10,42 @@ const commandInterpreter = async (message, bot, userState) => {
     }
     switch (message.text) {
         case '/start':
-            await bot.sendMessage(message.chat.id, 'Welcome to the Flow Asia Hackathon NFT Marketplace. You can create a wallet or import an existing wallet. You can also get your public key.');
-            await bot.sendMessage(message.chat.id, 'Please select an option', {
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: 'Create Wallet', callback_data: 'createWallet' }],
-                        [{ text: 'Import Wallet', callback_data: 'importWallet' }],
-                        [{ text: 'Get Wallets', callback_data: 'getWallets' }],
-                        [{ text: 'Export Wallet', callback_data: 'exportWallet' }],
-                        [{ text: 'Delete Wallet', callback_data: 'deleteWallet' }],
-                        [{ text: 'Help', callback_data: 'help' }]
-                    ]
-                }
-            });
+            await bot.sendMessage(message.chat.id, 
+                'Welcome to the NFT Marketplace Bot! 🎨\n\n' +
+                '🤖 This bot allows you to:\n' +
+                '• Create and manage up to 5 wallets\n' +
+                '• Mint unique NFTs with generated artwork\n' +
+                '• Buy and sell NFTs in the marketplace\n' +
+                '• View your NFT collection\n' +
+                '• Manage NFT listings and sales\n\n' +
+                '🔐 Security:\n' +
+                '• Your wallets are encrypted\n' +
+                '• You control your private keys\n' +
+                '• Export/backup options available\n\n' +
+                '📝 Available Commands:\n\n' +
+                '🔑 Wallet Management:\n' +
+                '/createwallet - Create a new wallet\n' +
+                '/importwallet - Import existing wallet\n' +
+                '/getwallets - List your wallets\n' +
+                '/exportwallet - Export wallet details\n' +
+                '/deletewallet - Remove a wallet\n\n' +
+                '🖼 NFT Actions:\n' +
+                '/mint - Mint a new NFT\n' +
+                '/getnft - Get NFT details\n' +
+                '/viewnftlist - View your NFTs\n' +
+                '/allowbuy - List NFT for sale\n' +
+                '/disallowbuy - Remove NFT from sale\n' +
+                '/buy - Buy an NFT\n\n' +
+                '⚙️ Admin Commands:\n' +
+                '/enableminting - Enable minting\n' +
+                '/disableminting - Disable minting\n' +
+                '/getmintenabled - Check minting status\n' +
+                '/setmintprice - Set minting price\n' +
+                '/getmintprice - Get current mint price\n' +
+                '/getmaxsupply - Get max supply\n' +
+                '/ownermint - Admin minting\n\n' +
+                '❓ Need help? Type /help to see this message again.'
+            );
             break;
         case '/createwallet':
             if (user.walletsAssociated.length >= 5) {
@@ -75,17 +98,43 @@ const commandInterpreter = async (message, bot, userState) => {
             });
             break;
         case '/help':
-            await bot.sendMessage(message.chat.id, 'Here are the commands:\n /start\n /getpubkey\n /help', {
-                reply_markup: {
-                    keyboard: [
-                        [{ text: '/start' }],
-                        [{ text: '/getPubKey' }],
-                        [{ text: '/help' }]
-                    ],
-                    one_time_keyboard: true,
-                    resize_keyboard: true
+            await bot.sendMessage(message.chat.id, 
+                '📖 Available Commands:\n\n' +
+                '🔑 Wallet Management:\n' +
+                '/createwallet - Create a new wallet (max 5)\n' +
+                '/importwallet - Import existing wallet\n' +
+                '/getwallets - List your wallets\n' +
+                '/exportwallet - Export wallet details\n' +
+                '/deletewallet - Remove a wallet\n\n' +
+                '🖼 NFT Actions:\n' +
+                '/mint - Mint a new NFT\n' +
+                '/getnft - Get NFT details by ID\n' +
+                '/getgrid - Get grid by seed\n' +
+                '/viewnftlist - View your NFT collection\n' +
+                '/allowbuy - List NFT for sale\n' +
+                '/disallowbuy - Remove NFT from sale\n' +
+                '/buy - Purchase an NFT\n\n' +
+                '⚙️ Admin Commands:\n' +
+                '/enableminting - Enable minting\n' +
+                '/disableminting - Disable minting\n' +
+                '/getmintenabled - Check if minting is enabled\n' +
+                '/setmintprice - Set NFT minting price\n' +
+                '/getmintprice - Get current mint price\n' +
+                '/getmaxsupply - Get maximum supply\n' +
+                '/getnfturi - Get NFT URI\n' +
+                '/ownermint - Admin minting function', 
+                {
+                    reply_markup: {
+                        keyboard: [
+                            [{ text: '/start' }],
+                            [{ text: '/createwallet' }, { text: '/getwallets' }],
+                            [{ text: '/mint' }, { text: '/viewnftlist' }],
+                            [{ text: '/help' }]
+                        ],
+                        resize_keyboard: true
+                    }
                 }
-            });
+            );
             break;
         case '/getnft':
             await bot.sendMessage(message.chat.id, 'Please send a token id');
