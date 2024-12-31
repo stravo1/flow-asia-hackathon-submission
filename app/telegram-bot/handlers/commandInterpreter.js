@@ -15,42 +15,42 @@ const commandInterpreter = async (message, bot, userState) => {
             await bot.sendMessage(message.chat.id,
                 'Woohoo! Welcome to the most awesome NFT Marketplace Bot in the galaxy! 🚀\n\n' +
                 '🤖 Check out what this cool bot can do:\n' +
-                '• Create up to 5 wallets (because who doesn\'t need a wallet party? 👛)\n' +
-                '• Mint unique NFTs (they\'re like digital pokemon, but cooler! ✨)\n' +
-                '• Buy and sell NFTs (become a crypto art mogul! 🎨)\n' +
-                '• View your collection (flex those pixels! 💪)\n' +
-                '• Manage listings (be your own art dealer! 🎭)\n\n' +
+                '• Create up to 5 wallets (because who doesn\'t need a wallet party?)\n' +
+                '• Mint unique NFTs (they\'re like digital pokemon, but cooler!)\n' +
+                '• Buy and sell NFTs (become a crypto art mogul!)\n' +
+                '• View your collection (flex those pixels!)\n' +
+                '• Manage listings (be your own art dealer!)\n\n' +
                 '🔐 Security Stuff (boring but important!):\n' +
-                '• Your wallets are encrypted (Fort Knox style! 🏰)\n' +
-                '• You\'re the boss of your keys (no sketchy business here! 🔑)\n' +
+                '• Your wallets are encrypted (Fort Knox style!)\n' +
+                '• You\'re the boss of your keys (no sketchy business here!)\n' +
                 '• Backup options (because losing crypto hurts! 😅)\n\n' +
                 '📝 Command List (AKA "Things You Can Make Me Do"):\n\n' +
                 '🔑 Wallet Stuff:\n' +
-                '/createwallet - Birth a new wallet! 👶\n' +
-                '/importwallet - Adopt a wallet! 🏠\n' +
-                '/getwallets - Count your wallet children! 👨‍👩‍👧‍👦\n' +
-                '/exportwallet - Send a wallet on vacation! ✈️\n' +
-                '/deletewallet - Time to say goodbye! 👋\n\n' +
+                '/createwallet - Birth a new wallet!\n' +
+                '/importwallet - Adopt a wallet!\n' +
+                '/getwallets - Count your wallet children!\n' +
+                '/exportwallet - View private stuffs of your wallet!\n' +
+                '/deletewallet - Time to say goodbye!\n\n' +
                 '🖼 NFT Magic:\n' +
-                '/mint - Create digital art like a boss! 🎨\n' +
-                '/getnft - Stalk an NFT! 🔍\n' +
-                '/viewnftlist - Admire your collection! 🖼\n' +
-                '/allowbuy - Put that beauty up for sale! 💰\n' +
-                '/disallowbuy - Changed your mind? No prob! 🙅‍♂️\n' +
-                '/buy - Throw money at NFTs! 💸\n' +
-                '/getnftsforsale - Window shopping time! 🛍\n' +
-                '/getlatestminted - See what\'s fresh out of the oven! 🥧\n\n' +
+                '/mint - Create digital art like a boss!\n' +
+                '/getnft - Stalk an NFT!\n' +
+                '/viewnftlist - Admire your collection!\n' +
+                '/allowbuy - Put that beauty up for sale!\n' +
+                '/disallowbuy - Changed your mind? No prob!\n' +
+                '/buy - Throw money at NFTs!\n' +
+                '/getnftsforsale - Window shopping time!\n' +
+                '/getlatestminted - See what\'s fresh out of the oven!\n\n' +
                 '🔄 Other Stuff:\n' +
-                '/cancel - Oops, nevermind! 🙈\n\n' +
+                '/getmintprice - How much again?\n' +
+                '/getmaxsupply - Check the limit!\n' +
+                '/cancel - Oops, nevermind!\n\n' +
                 '⚙️ Super Secret Admin Stuff:\n' +
-                '/enableminting - Open the floodgates! 🌊\n' +
-                '/disableminting - Close the cookie jar! 🍪\n' +
-                '/getmintenabled - Is this thing on? 🎛\n' +
-                '/setmintprice - Set the damage! 💵\n' +
-                '/getmintprice - How much again? 🤔\n' +
-                '/getmaxsupply - Check the limit! 📊\n' +
+                '/enableminting - Open the floodgates!\n' +
+                '/disableminting - Close the... floodgates?!\n' +
+                '/getmintenabled - Is this thing on?\n' +
+                '/setmintprice - Set the damage!\n' +
                 '/ownermint - Admin\'s special mint button! 🎯\n\n' +
-                '❓ Lost? Confused? Type /help and I\'ll explain it all again! 🤪'
+                '❓ Lost? Confused? Type /help and I\'ll explain it all again!'
             );
             break;
         case '/createwallet':
@@ -110,33 +110,37 @@ const commandInterpreter = async (message, bot, userState) => {
                 'Using ERC721 standard (fancy way of saying "legit NFTs" 🎨)\n' +
                 'All the magic happens on Flow EVM Testnet! ✨\n\n' +
                 '📖 Here\'s what you can do (prepare to be amazed!):\n\n' +
-                '🔑 Wallet Wizardry:\n' +
-                '/createwallet - Spawn a new wallet (max 5, we\'re not octopi! 🐙)\n' +
-                '/importwallet - Summon your existing wallet! 🧙‍♀️\n' +
-                '/getwallets - Count your digital treasures! 💎\n' +
-                '/exportwallet - Pack a wallet for vacation! 🏖️\n' +
-                '/deletewallet - Send a wallet to the shadow realm! 👻\n\n' +
-                '🖼 NFT Shenanigans:\n' +
-                '/mint - Create digital art like Picasso! 🎨\n' +
-                '/getnft - Play NFT detective! 🕵️‍♂️\n' +
-                '/getgrid - Get grid (it\'s like connect-the-dots but cooler!) 🎲\n' +
-                '/viewnftlist - Flex your collection! 💪\n' +
-                '/allowbuy - Become a digital merchant! 🏪\n' +
-                '/disallowbuy - Changed your mind? No problemo! 🙅‍♂️\n' +
-                '/buy - Throw your money at pretty pixels! 💸\n\n' +
-                '/getnftsforsale - Window shopping time! 🛍️\n' +
-                '/getlatestminted - See what\'s fresh out the NFT oven! 🥧\n\n' +
-                '🔄 Misc Stuff:\n' +
-                '/cancel - The magical undo button! ⏮️\n\n' +
+                '🔐 Security Stuff (boring but important!):\n' +
+                '• Your wallets are encrypted (Fort Knox style!)\n' +
+                '• You\'re the boss of your keys (no sketchy business here!)\n' +
+                '• Backup options (because losing crypto hurts! 😅)\n\n' +
+                '📝 Command List (AKA "Things You Can Make Me Do"):\n\n' +
+                '🔑 Wallet Stuff:\n' +
+                '/createwallet - Birth a new wallet!\n' +
+                '/importwallet - Adopt a wallet!\n' +
+                '/getwallets - Count your wallet children!\n' +
+                '/exportwallet - View private stuffs of your wallet!\n' +
+                '/deletewallet - Time to say goodbye!\n\n' +
+                '🖼 NFT Magic:\n' +
+                '/mint - Create digital art like a boss!\n' +
+                '/getnft - Stalk an NFT!\n' +
+                '/viewnftlist - Admire your collection!\n' +
+                '/allowbuy - Put that beauty up for sale!\n' +
+                '/disallowbuy - Changed your mind? No prob!\n' +
+                '/buy - Throw money at NFTs!\n' +
+                '/getnftsforsale - Window shopping time!\n' +
+                '/getlatestminted - See what\'s fresh out of the oven!\n\n' +
+                '🔄 Other Stuff:\n' +
+                '/getmintprice - How much again?\n' +
+                '/getmaxsupply - Check the limit!\n' +
+                '/cancel - Oops, nevermind!\n\n' +
                 '⚙️ Super Secret Admin Stuff:\n' +
-                '/enableminting - Green light for NFT party! 🟢\n' +
-                '/disableminting - Red light! Stop the party! 🔴\n' +
-                '/getmintenabled - Is the party still going? 🎉\n' +
-                '/setmintprice - Set the damage to wallets! 💰\n' +
-                '/getmintprice - How much are we talking? 🤑\n' +
-                '/getmaxsupply - Check the NFT population limit! 📊\n' +
-                '/getnfturi - Where\'s the NFT living? 🏠\n' +
-                '/ownermint - The boss button! 👑',
+                '/enableminting - Open the floodgates!\n' +
+                '/disableminting - Close the... floodgates?!\n' +
+                '/getmintenabled - Is this thing on?\n' +
+                '/setmintprice - Set the damage!\n' +
+                '/ownermint - Admin\'s special mint button! 🎯\n\n' +
+                '❓ Lost? Confused? Type /help and I\'ll explain it all again!',
                 {
                     reply_markup: {
                         keyboard: [
