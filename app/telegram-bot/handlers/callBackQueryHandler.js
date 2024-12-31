@@ -1,6 +1,6 @@
-const { safeCreateUser, getNFTDetails } = require("../utils/databaseActions");
-const { getJsonFromTokenId, getImageFromTokenId } = require("../utils/utils");
-
+const { safeCreateUser, getNFTDetails, getLatestMintedNFTs } = require("../utils/databaseActions");
+const { getJsonFromTokenId, getImageFromTokenId, generateGrid } = require("../utils/utils");
+const moment = require("moment");
 const callBackQueryHandler = async (query, bot, userState) => {
     let user;
     try {
@@ -182,6 +182,32 @@ const callBackQueryHandler = async (query, bot, userState) => {
         await bot.answerCallbackQuery(query.id, {
             text: "Please send your password",
         });
+        return;
+    } else if (query.data.startsWith("listNFTs:")) {
+        const page = query.data.split(":")[1];
+        let latestMintedNFTs = await getLatestMintedNFTs(page, 5);
+        let nftData = latestMintedNFTs.map((nft) => {
+            let grid = generateGrid(nft.tokenId);
+            return {
+                type: 'photo',
+                media: grid,
+                caption: `Token ID: ${nft.tokenId}\nName: ${JSON.parse(nft.metadata).name}\nOwner: ${nft.owner}\nCreated At: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? 'Price: ' + nft.price + ' ETH' : 'Not for Sale'}`
+            }
+        });
+        if (nftData.length > 0) {
+            await bot.sendMediaGroup(query.message.chat.id, nftData);
+        } else {
+            await bot.sendMessage(query.message.chat.id, 'No more NFTs found');
+        }
+        if (latestMintedNFTs.length === 1) {
+            await bot.sendMessage(query.message.chat.id, 'These are the latest minted NFTs. To view more, use the Load More button', {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'Load More', callback_data: `listNFTs:${1 + Number(page)}` }],
+                    ]
+                }
+            });
+        }
         return;
     }
 

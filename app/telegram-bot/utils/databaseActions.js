@@ -89,8 +89,8 @@ const listAllNFTsForUser = async (user) => {
     return nfts;
 }
 
-const listNFTsForSale = async () => {
-    const nfts = await NFTModel.find({ purchaseEnabled: true });
+const listNFTsForSale = async (page = 1, pageSize = 5) => {
+    const nfts = await NFTModel.find({ purchaseEnabled: true }).sort({ createdAt: -1 }).skip((page - 1) * pageSize).limit(pageSize);
     return nfts;
 }
 
@@ -105,6 +105,11 @@ const checkIfNFTBelongsToUser = async (nftId, user) => {
     return userWallets.includes(nft.owner);
 }
 
+const getLatestMintedNFTs = async (page = 1, pageSize = 5) => {
+    const nfts = await NFTModel.find().sort({ createdAt: -1 }).skip((page - 1) * pageSize).limit(pageSize);
+    return nfts;
+}
+
 module.exports = {
     safeCreateUser,
     attachWalletToUser,
@@ -117,5 +122,6 @@ module.exports = {
     listNFTsForSale,
     getOwnerOfNFT,
     checkIfNFTBelongsToUser,
-    getNFTDetails
+    getNFTDetails,
+    getLatestMintedNFTs
 };

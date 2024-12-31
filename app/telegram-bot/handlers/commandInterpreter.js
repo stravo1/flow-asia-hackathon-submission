@@ -1,5 +1,7 @@
+const moment = require("moment");
 const { getMintEnabled, getMintPrice, getMaxSupply } = require("../utils/blockchainActions");
-const { safeCreateUser, listAllNFTsForUser } = require("../utils/databaseActions");
+const { safeCreateUser, listAllNFTsForUser, getNFTDetails, getLatestMintedNFTs, listNFTsForSale } = require("../utils/databaseActions");
+const { generateGrid } = require("../utils/utils");
 
 const commandInterpreter = async (message, bot, userState) => {
     let user;
@@ -10,7 +12,7 @@ const commandInterpreter = async (message, bot, userState) => {
     }
     switch (message.text) {
         case '/start':
-            await bot.sendMessage(message.chat.id, 
+            await bot.sendMessage(message.chat.id,
                 'Welcome to the NFT Marketplace Bot! 🎨\n\n' +
                 '🤖 This bot allows you to:\n' +
                 '• Create and manage up to 5 wallets\n' +
@@ -36,6 +38,8 @@ const commandInterpreter = async (message, bot, userState) => {
                 '/allowbuy - List NFT for sale\n' +
                 '/disallowbuy - Remove NFT from sale\n' +
                 '/buy - Buy an NFT\n\n' +
+                '/getnftsforsale - View NFTs for sale\n' +
+                '/getlatestminted - View latest minted NFTs\n' +
                 '⚙️ Admin Commands:\n' +
                 '/enableminting - Enable minting\n' +
                 '/disableminting - Disable minting\n' +
@@ -98,7 +102,7 @@ const commandInterpreter = async (message, bot, userState) => {
             });
             break;
         case '/help':
-            await bot.sendMessage(message.chat.id, 
+            await bot.sendMessage(message.chat.id,
                 '📖 Available Commands:\n\n' +
                 '🔑 Wallet Management:\n' +
                 '/createwallet - Create a new wallet (max 5)\n' +
@@ -114,6 +118,8 @@ const commandInterpreter = async (message, bot, userState) => {
                 '/allowbuy - List NFT for sale\n' +
                 '/disallowbuy - Remove NFT from sale\n' +
                 '/buy - Purchase an NFT\n\n' +
+                '/getnftsforsale - View NFTs for sale\n' +
+                '/getlatestminted - View latest minted NFTs\n' +
                 '⚙️ Admin Commands:\n' +
                 '/enableminting - Enable minting\n' +
                 '/disableminting - Disable minting\n' +
@@ -122,7 +128,7 @@ const commandInterpreter = async (message, bot, userState) => {
                 '/getmintprice - Get current mint price\n' +
                 '/getmaxsupply - Get maximum supply\n' +
                 '/getnfturi - Get NFT URI\n' +
-                '/ownermint - Admin minting function', 
+                '/ownermint - Admin minting function',
                 {
                     reply_markup: {
                         keyboard: [
@@ -323,6 +329,66 @@ const commandInterpreter = async (message, bot, userState) => {
                 break;
             }
             await bot.sendMessage(message.chat.id, `The NFT URI is ${await getNFTURI(user.walletsAssociated[0].address)}`);
+            break;
+        case '/getlatestminted':
+            try {
+                let latestMintedNFTs = await getLatestMintedNFTs(1, 5);
+                let nftData = latestMintedNFTs.map((nft) => {
+                    let grid = generateGrid(nft.tokenId);
+                    return {
+                        type: 'photo',
+                        media: grid,
+                        caption: `Token ID: ${nft.tokenId}\nName: ${JSON.parse(nft.metadata).name}\nOwner: ${nft.owner}\nCreated At: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? 'Price: ' + nft.price + ' ETH' : 'Not for Sale'}`
+                    }
+                });
+                if (nftData.length > 0) {
+                    await bot.sendMediaGroup(message.chat.id, nftData);
+                } else {
+                    await bot.sendMessage(message.chat.id, 'No NFTs found');
+                }
+                if (latestMintedNFTs.length === 5) {
+                    await bot.sendMessage(message.chat.id, 'These are the latest minted NFTs. To view more, use the Load More button', {
+                        reply_markup: {
+                            inline_keyboard: [
+                                [{ text: 'Load More', callback_data: 'listNFTs:2' }],
+                            ]
+                        }
+                    });
+                }
+            } catch (error) {
+                await bot.sendMessage(message.chat.id, 'Error getting latest minted NFTs');
+            }
+            break;
+        case '/getnftsforsale':
+            try {
+                let nftsForSale = await listNFTsForSale(1, 5);
+                if (nftsForSale.length === 0) {
+                    await bot.sendMessage(message.chat.id, 'No NFTs for sale');
+                    break;
+                }
+                let nftData = nftsForSale.map((nft) => {
+                    let grid = generateGrid(nft.tokenId);
+                    return {
+                        type: 'photo',
+                        media: grid,
+                        caption: `Token ID: ${nft.tokenId}\nName: ${JSON.parse(nft.metadata).name}\nOwner: ${nft.owner}\nCreated At: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? 'Price: ' + nft.price + ' ETH' : 'Not for Sale'}`
+                    }
+                });
+                await bot.sendMediaGroup(message.chat.id, nftData);
+                if (nftsForSale.length === 5) {
+                    await bot.sendMessage(message.chat.id, 'These are the NFTs for sale. Please take a note of the token id to buy it. To view more, use the Load More button', {
+                        reply_markup: {
+                            inline_keyboard: [
+                                [{ text: 'Load More', callback_data: 'listNFTs:2' }],
+                            ]
+                        }
+                    });
+                } else {
+                    await bot.sendMessage(message.chat.id, 'These are the NFTs for sale. Please take a note of the token id to buy it.');
+                }
+            } catch (error) {
+                await bot.sendMessage(message.chat.id, 'Error getting NFTs for sale');
+            }
             break;
         default:
             await bot.sendMessage(message.chat.id, 'Unknown command');
