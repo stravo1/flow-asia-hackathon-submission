@@ -24,10 +24,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("deleteWallet:")) {
@@ -38,10 +38,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("enableMinting:")) {
@@ -53,10 +53,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("disableMinting:")) {
@@ -68,10 +68,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("setMintPrice:")) {
@@ -83,10 +83,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send a price (in ETH)"
+            "Time to play Price is Right! How much ETH should this beauty cost? 💎"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send a price (in ETH)",
+            text: "Time to play Price is Right! How much ETH should this beauty cost? 💎",
         });
         return;
     } else if (query.data.startsWith("ownerMint:")) {
@@ -98,10 +98,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("mint:")) {
@@ -113,10 +113,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("viewNFT:")) {
@@ -130,10 +130,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         let nftMetadata = JSON.parse(nftDetails.metadata);
         let nftImage = await getImageFromTokenId(tokenId);
         await bot.sendPhoto(query.message.chat.id, nftImage, {
-            caption: `Name: ${nftMetadata.name}\nDescription: ${nftMetadata.description
+            caption: `✨ Behold this masterpiece! ✨\nName: ${nftMetadata.name}\nDescription: ${nftMetadata.description
                 }\n${nftDetails.purchaseEnabled
-                    ? `Price: ${nftDetails.purchasePrice} ETH`
-                    : "Not listed for sale"
+                    ? `Price: ${nftDetails.purchasePrice} ETH 💰`
+                    : "Not for sale (this one's playing hard to get! 😏)"
                 }`,
         });
         await bot.answerCallbackQuery(query.id);
@@ -147,10 +147,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("disallowBuy:")) {
@@ -162,10 +162,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("buy:")) {
@@ -177,10 +177,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Please send your password"
+            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Please send your password",
+            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
         });
         return;
     } else if (query.data.startsWith("listNFTs:")) {
@@ -191,19 +191,19 @@ const callBackQueryHandler = async (query, bot, userState) => {
             return {
                 type: 'photo',
                 media: grid,
-                caption: `Token ID: ${nft.tokenId}\nName: ${JSON.parse(nft.metadata).name}\nOwner: ${nft.owner}\nCreated At: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? 'Price: ' + nft.price + ' ETH' : 'Not for Sale'}`
+                caption: `🎨 NFT Showcase 🎨\nToken ID: ${nft.tokenId}\nName: ${JSON.parse(nft.metadata).name}\nOwner: ${nft.owner}\nBorn on: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} 👶\n\n${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? '💰 Price: ' + nft.price + ' ETH' : '🔒 Not for Sale'}`
             }
         });
         if (nftData.length > 0) {
             await bot.sendMediaGroup(query.message.chat.id, nftData);
         } else {
-            await bot.sendMessage(query.message.chat.id, 'No more NFTs found');
+            await bot.sendMessage(query.message.chat.id, 'Looks like we hit rock bottom! No more NFTs to show! 🏜️');
         }
         if (latestMintedNFTs.length === 1) {
-            await bot.sendMessage(query.message.chat.id, 'These are the latest minted NFTs. To view more, use the Load More button', {
+            await bot.sendMessage(query.message.chat.id, 'Fresh out of the oven! Want to see more? Hit that Load More button! 🍪', {
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: 'Load More', callback_data: `listNFTs:${1 + Number(page)}` }],
+                        [{ text: 'Load More NFTs 🎭', callback_data: `listNFTs:${1 + Number(page)}` }],
                     ]
                 }
             });
