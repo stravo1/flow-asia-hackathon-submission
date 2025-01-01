@@ -24,10 +24,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Psst! Time for the magic words! Whisper your password like you're sharing a crypto conspiracy! 🤫"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Psst! Time for the magic words! Whisper your password like you're sharing a crypto conspiracy! 🤫",
         });
         return;
     } else if (query.data.startsWith("deleteWallet:")) {
@@ -38,10 +38,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Time to do the secret handshake! What's your password? 🤝"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Time to do the secret handshake! What's your password? 🤝",
         });
         return;
     } else if (query.data.startsWith("enableMinting:")) {
@@ -53,10 +53,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Knock knock! Password required! (No blockchain peeking allowed!) 🚪"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Knock knock! Password required! (No blockchain peeking allowed!) 🚪",
         });
         return;
     } else if (query.data.startsWith("disableMinting:")) {
@@ -68,10 +68,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Password time! Pretend you're a secret agent avoiding blockchain surveillance! 🕶️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Password time! Pretend you're a secret agent avoiding blockchain surveillance! 🕶️",
         });
         return;
     } else if (query.data.startsWith("setMintPrice:")) {
@@ -83,10 +83,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Time to play Price is Right! How much ETH should this beauty cost? 💎"
+            "How much ETH should minting each NFT cost? 💎"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Time to play Price is Right! How much ETH should this beauty cost? 💎",
+            text: "How much ETH should minting each NFT cost? 💎",
         });
         return;
     } else if (query.data.startsWith("ownerMint:")) {
@@ -98,10 +98,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Quick! Enter your super secret password while doing a ninja roll! 🥷"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Quick! Enter your super secret password while doing a ninja roll! 🥷",
         });
         return;
     } else if (query.data.startsWith("mint:")) {
@@ -113,10 +113,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Password required! Whisper it like you're sharing the recipe for a secret sauce! 🤌"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Password required! Whisper it like you're sharing the recipe for a secret sauce! 🤌",
         });
         return;
     } else if (query.data.startsWith("viewNFT:")) {
@@ -147,10 +147,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Time for the password dance! Do the crypto shuffle while typing! 💃"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Time for the password dance! Do the crypto shuffle while typing! 💃",
         });
         return;
     } else if (query.data.startsWith("disallowBuy:")) {
@@ -162,10 +162,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Password time! Type it like you're defusing a crypto bomb! ⏰"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Password time! Type it like you're defusing a crypto bomb! ⏰",
         });
         return;
     } else if (query.data.startsWith("buy:")) {
@@ -177,10 +177,10 @@ const callBackQueryHandler = async (query, bot, userState) => {
         };
         await bot.sendMessage(
             query.message.chat.id,
-            "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️"
+            "Enter your password like you're unlocking a digital treasure chest! 🗝️"
         );
         await bot.answerCallbackQuery(query.id, {
-            text: "Quick, what's the secret password? Don't let the blockchain see! 🕵️‍♂️",
+            text: "Enter your password like you're unlocking a digital treasure chest! 🗝️",
         });
         return;
     } else if (query.data.startsWith("listNFTs:")) {

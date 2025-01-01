@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { getMintEnabled, getMintPrice, getMaxSupply } = require("../utils/blockchainActions");
+const { getMintEnabled, getMintPrice, getMaxSupply, getNFTURI } = require("../utils/blockchainActions");
 const { safeCreateUser, listAllNFTsForUser, getNFTDetails, getLatestMintedNFTs, listNFTsForSale } = require("../utils/databaseActions");
 const { generateGrid } = require("../utils/utils");
 
@@ -208,7 +208,7 @@ const commandInterpreter = async (message, bot, userState) => {
                 await bot.sendMessage(message.chat.id, 'No wallets found! 😱 Can\'t set prices in the void! 🌌');
                 break;
             }
-            await bot.sendMessage(message.chat.id, 'Pick your wallet to set the price! 💰 Choose wisely, young Padawan! 🧙‍♂️', {
+            await bot.sendMessage(message.chat.id, 'Pick your wallet to set the price! 💰 Choose wisely, the wallet adddress needs to be the same one that was used to deploy the contract! 🧙‍♂️', {
                 reply_markup: {
                     inline_keyboard: user.walletsAssociated.map((wallet, index) => [
                         { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `setMintPrice:${wallet.address}` }
@@ -228,7 +228,7 @@ const commandInterpreter = async (message, bot, userState) => {
                 await bot.sendMessage(message.chat.id, 'No wallets? That\'s like being a superhero without powers! 🦸‍♂️');
                 break;
             }
-            await bot.sendMessage(message.chat.id, 'Choose your wallet for some admin magic! ✨', {
+            await bot.sendMessage(message.chat.id, 'Choose your admin wallet for some free minting! ✨', {
                 reply_markup: {
                     inline_keyboard: user.walletsAssociated.map((wallet, index) => [
                         { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `ownerMint:${wallet.address}` }
@@ -242,10 +242,10 @@ const commandInterpreter = async (message, bot, userState) => {
                 break;
             }
             if (!(await getMintEnabled(user.walletsAssociated[0].address))) {
-                await bot.sendMessage(message.chat.id, 'Minting is hibernating! 🐻 Come back when it wakes up! ⏰');
+                await bot.sendMessage(message.chat.id, 'Minting is disabled! Come back when it has been enabled! ⏰');
                 break;
             }
-            await bot.sendMessage(message.chat.id, 'Time to choose your minting champion! 🏆', {
+            await bot.sendMessage(message.chat.id, 'Choose your wallet to mint! ⛏️', {
                 reply_markup: {
                     inline_keyboard: user.walletsAssociated.map((wallet, index) => [
                         { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `mint:${wallet.address}` }
@@ -301,10 +301,10 @@ const commandInterpreter = async (message, bot, userState) => {
                 }
                 let nftsOwned = await listAllNFTsForUser(user);
                 if (nftsOwned.length === 0) {
-                    await bot.sendMessage(message.chat.id, 'Your NFT shelf is bare as Old Mother Hubbard\'s cupboard! 🥄');
+                    await bot.sendMessage(message.chat.id, 'Your NFT shelf is bare as a desert! 🌵');
                     break;
                 }
-                await bot.sendMessage(message.chat.id, 'Which NFT should we take off the market? Time for a vacation! 🏖️', {
+                await bot.sendMessage(message.chat.id, 'Which NFT should we take off the market?', {
                     reply_markup: {
                         inline_keyboard: nftsOwned.map((nft, index) => [
                             { text: `${index + 1}. ${JSON.parse(nft.metadata).name}`, callback_data: `disallowBuy:${nft.tokenId}` }
@@ -320,7 +320,7 @@ const commandInterpreter = async (message, bot, userState) => {
                 await bot.sendMessage(message.chat.id, 'No wallets? That\'s like going shopping without a wallet! 👛 Oh wait...');
                 break;
             }
-            await bot.sendMessage(message.chat.id, 'Choose your spending wallet! 💸 Make it rain! 🌧️', {
+            await bot.sendMessage(message.chat.id, 'Choose your spending wallet! Make it rain! 💸', {
                 reply_markup: {
                     inline_keyboard: user.walletsAssociated.map((wallet, index) => [
                         { text: `${index + 1}. ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`, callback_data: `buy:${wallet.address}` }
@@ -335,13 +335,13 @@ const commandInterpreter = async (message, bot, userState) => {
             }
             await bot.sendMessage(message.chat.id, `The max supply is ${await getMaxSupply(user.walletsAssociated[0].address)} NFTs! 🎯 That\'s a lot of digital art! 🎨`);
             break;
-        case '/getnfturi':
-            if (user.walletsAssociated.length === 0) {
-                await bot.sendMessage(message.chat.id, 'No wallets? That\'s like asking for directions without a map! 🗺️');
-                break;
-            }
-            await bot.sendMessage(message.chat.id, `Here\'s where your NFTs live! 🏠 URI: ${await getNFTURI(user.walletsAssociated[0].address)}`);
-            break;
+        // case '/getnfturi':
+        //     if (user.walletsAssociated.length === 0) {
+        //         await bot.sendMessage(message.chat.id, 'No wallets? That\'s like asking for directions without a map! 🗺️');
+        //         break;
+        //     }
+        //     await bot.sendMessage(message.chat.id, `Here\'s where your NFTs live! 🏠 URI: ${await getNFTURI(user.walletsAssociated[0].address)}`);
+        //     break;
         case '/getlatestminted':
             try {
                 let latestMintedNFTs = await getLatestMintedNFTs(1, 5);
@@ -350,7 +350,7 @@ const commandInterpreter = async (message, bot, userState) => {
                     return {
                         type: 'photo',
                         media: grid,
-                        caption: `🎯 Token ID: ${nft.tokenId}\n✨ Name: ${JSON.parse(nft.metadata).name}\n👑 Owner: ${nft.owner}\n⏰ Born on: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n📝 ${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? '💰 Price: ' + nft.purchasePrice + ' ETH' : '🔒 Not for Sale'}`
+                        caption: `🎯 Token ID: ${nft.tokenId}\n✨ Name: ${JSON.parse(nft.metadata).name}\n👑 Owner: ${nft.owner}\n⏰ Minted on: ${moment(nft.createdAt).format('DD/MM/YYYY HH:mm:ss')} \n\n📝 ${JSON.parse(nft.metadata).description} \n\n${nft.purchaseEnabled ? '💰 Price: ' + nft.purchasePrice + ' ETH' : '🔒 Not for Sale'}`
                     }
                 });
                 if (nftData.length > 0) {
